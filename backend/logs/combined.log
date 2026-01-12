@@ -1,0 +1,26 @@
+2026-01-13 02:36:24 [INFO]: 服务器运行在端口 3000
+2026-01-13 02:36:28 [INFO]: GET /health - ::1
+2026-01-13 02:36:28 [INFO]: GET /favicon.ico - ::1
+2026-01-13 02:36:29 [INFO]: GET /health - ::1
+2026-01-13 02:36:39 [INFO]: GET /api/services/categories - ::1
+2026-01-13 02:36:46 [INFO]: GET /api/services - ::1
+2026-01-13 02:41:41 [INFO]: GET /api/services - ::1
+2026-01-13 02:41:41 [INFO]: GET /api/services/categories - ::1
+2026-01-13 02:41:41 [INFO]: GET /api/services - ::1
+2026-01-13 02:41:41 [INFO]: GET /api/services/categories - ::1
+2026-01-13 02:41:42 [INFO]: GET /api/services - ::1
+2026-01-13 02:41:42 [INFO]: GET /api/services/categories - ::1
+2026-01-13 02:41:43 [INFO]: GET /api/services - ::1
+2026-01-13 02:46:12 [INFO]: GET /api/services - ::1
+2026-01-13 02:46:12 [INFO]: GET /api/services/categories - ::1
+2026-01-13 02:46:14 [INFO]: GET /api/services - ::1
+2026-01-13 02:46:14 [INFO]: GET /api/services/categories - ::1
+2026-01-13 02:46:15 [INFO]: GET /api/services - ::1
+2026-01-13 02:46:15 [INFO]: GET /api/services/categories - ::1
+2026-01-13 02:46:15 [INFO]: GET /api/services - ::1
+2026-01-13 02:46:16 [INFO]: GET /api/services - ::1
+2026-01-13 02:46:16 [INFO]: GET /api/services/categories - ::1
+2026-01-13 02:46:19 [INFO]: GET /api/services - ::1
+2026-01-13 02:46:19 [INFO]: GET /api/services/categories - ::1
+2026-01-13 02:46:20 [INFO]: GET /api/services/categories - ::1
+2026-01-13 02:46:21 [INFO]: GET /api/services - ::1
