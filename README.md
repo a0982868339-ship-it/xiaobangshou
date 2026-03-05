@@ -30,9 +30,16 @@
 
 ## 演示与素材
 
-- 用户端下单流程视频：`docs/demos/user_demo.gif`（替换为实际链接）
-- 服务者接单流程视频：`docs/demos/provider_demo.gif`（替换为实际链接）
-- 管理后台数据大屏：`docs/demos/admin_demo.gif`（替换为实际链接）
+> 💡 提示：以下演示视频加载可能需要较长时间，请耐心等待。
+
+### 1. 用户端 - 下单与支付
+![用户端演示](docs/demos/user_demo.gif)
+
+### 2. 服务者端 - 接单与履约
+![服务者端演示](docs/demos/provider_demo.gif)
+
+### 3. 管理后台 - 数据与调度
+![管理后台演示](docs/demos/admin_demo.gif)
 
 ---
 
