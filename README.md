@@ -13,10 +13,12 @@
 📺 演示视频 (Demo)
 
 遛狗预约下单服务演示
-![小帮手喂猫遛狗预约下单平台demo演示](https://github.com/user-attachments/assets/fee24542-ab16-4b8c-9a5d-2e96e157fc45)
+![小帮手喂猫遛狗预约下单平台demo演示](https://github.com/user-attachments/assets/d092ce17-6576-4af5-a60a-f2eea0f1520c)
+
 
 小帮手后台管理系统demo演示
-![小帮手后台管理系统demo演示](https://github.com/user-attachments/assets/43e294d2-10f0-47ec-ac65-cd2fd314ab81)
+![小帮手后台管理系统demo演示](https://github.com/user-attachments/assets/4504a861-329e-44de-9a04-5baaa4a577d9)
+
 
 
 
