@@ -10,6 +10,16 @@
 
 > 一个面向本地生活服务的全链路 O2O 履约系统，覆盖用户端、服务者端、管理后台与后端核心能力。
 
+📺 演示视频 (Demo)
+
+遛狗预约下单服务演示
+![小帮手喂猫遛狗预约下单平台demo演示](https://github.com/user-attachments/assets/fee24542-ab16-4b8c-9a5d-2e96e157fc45)
+
+小帮手后台管理系统demo演示
+![小帮手后台管理系统demo演示](https://github.com/user-attachments/assets/43e294d2-10f0-47ec-ac65-cd2fd314ab81)
+
+
+
 ---
 
 ## 一句话概览
