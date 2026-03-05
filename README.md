@@ -22,6 +22,47 @@
 
 ---
 
+## 🛠 技术栈全景 (Tech Stack)
+
+### 🖥 前端架构 (Frontend)
+- **核心框架**: [Vue 3](https://vuejs.org/) (Composition API) + [Vite 5](https://vitejs.dev/)
+- **状态管理**: [Pinia](https://pinia.vuejs.org/)
+- **UI 组件库**:
+  - 移动端: [Vant 4](https://vant-contrib.gitee.io/vant/) (轻量级、高性能)
+  - 管理后台: [Element Plus](https://element-plus.org/) + [TailwindCSS](https://tailwindcss.com/)
+- **数据可视化**: [ECharts 5](https://echarts.apache.org/) (运营报表)
+- **通信协议**: Axios (REST) + Socket.io-client (WebSocket)
+- **即时通讯**: 腾讯云 IM SDK (TIM)
+
+### ⚙️ 后端架构 (Backend)
+- **运行时**: [Node.js 18+](https://nodejs.org/) (LTS)
+- **Web 框架**: [Express 4](https://expressjs.com/)
+- **数据库**: [MySQL 8.0](https://www.mysql.com/) (Relational Data)
+- **缓存与消息队列**:
+  - [Redis 7](https://redis.io/) (分布式锁、缓存)
+  - [BullMQ](https://docs.bullmq.io/) (异步任务队列、延时队列)
+- **实时引擎**: [Socket.io](https://socket.io/) (双向通信、状态同步)
+- **安全机制**:
+  - JWT (无状态认证)
+  - Helmet (HTTP 头安全)
+  - Express-Rate-Limit (防爆破/限流)
+- **日志系统**: Winston (分级日志)
+
+### ☁️ 基础设施与部署 (Infra & DevOps)
+- **容器化**: [Docker](https://www.docker.com/) + Docker Compose
+- **编排**: [Kubernetes (K8s)](https://kubernetes.io/) (Production Ready)
+- **网关/代理**: [Nginx](https://nginx.org/) (反向代理、负载均衡)
+- **云服务集成**:
+  - **地图服务**: 高德地图 API (LBS、路径规划、距离计算)
+  - **支付网关**: 支付宝 SDK (App 支付、退款)
+  - **短信/验证**: 阿里云 SMS & Captcha
+
+### 🔧 开发工具 (Dev Tools)
+- **版本控制**: Git
+- **包管理**: NPM
+
+---
+
 ## 一句话概览
 
 小帮手通过 **LBS 智能调度 + 订单全流程实时同步 + 资金担保结算** 构建家政服务闭环，兼顾 C 端体验、B 端效率与平台治理能力。
@@ -84,48 +125,6 @@ graph TD
     Jobs --> Redis
     Notify --> SocketIO
 ```
-
----
-
-## 🛠 技术栈全景 (Tech Stack)
-
-### 🖥 前端架构 (Frontend)
-- **核心框架**: [Vue 3](https://vuejs.org/) (Composition API) + [Vite 5](https://vitejs.dev/)
-- **状态管理**: [Pinia](https://pinia.vuejs.org/)
-- **UI 组件库**:
-  - 移动端: [Vant 4](https://vant-contrib.gitee.io/vant/) (轻量级、高性能)
-  - 管理后台: [Element Plus](https://element-plus.org/) + [TailwindCSS](https://tailwindcss.com/)
-- **数据可视化**: [ECharts 5](https://echarts.apache.org/) (运营报表)
-- **通信协议**: Axios (REST) + Socket.io-client (WebSocket)
-- **即时通讯**: 腾讯云 IM SDK (TIM)
-
-### ⚙️ 后端架构 (Backend)
-- **运行时**: [Node.js 18+](https://nodejs.org/) (LTS)
-- **Web 框架**: [Express 4](https://expressjs.com/)
-- **数据库**: [MySQL 8.0](https://www.mysql.com/) (Relational Data)
-- **缓存与消息队列**:
-  - [Redis 7](https://redis.io/) (分布式锁、缓存)
-  - [BullMQ](https://docs.bullmq.io/) (异步任务队列、延时队列)
-- **实时引擎**: [Socket.io](https://socket.io/) (双向通信、状态同步)
-- **安全机制**:
-  - JWT (无状态认证)
-  - Helmet (HTTP 头安全)
-  - Express-Rate-Limit (防爆破/限流)
-- **日志系统**: Winston (分级日志)
-
-### ☁️ 基础设施与部署 (Infra & DevOps)
-- **容器化**: [Docker](https://www.docker.com/) + Docker Compose
-- **编排**: [Kubernetes (K8s)](https://kubernetes.io/) (Production Ready)
-- **网关/代理**: [Nginx](https://nginx.org/) (反向代理、负载均衡)
-- **云服务集成**:
-  - **地图服务**: 高德地图 API (LBS、路径规划、距离计算)
-  - **支付网关**: 支付宝 SDK (App 支付、退款)
-  - **短信/验证**: 阿里云 SMS & Captcha
-
-### 🔧 开发工具 (Dev Tools)
-- **版本控制**: Git
-- **包管理**: NPM
-
 
 ---
 
