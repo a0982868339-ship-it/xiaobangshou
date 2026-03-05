@@ -1,0 +1,109 @@
+# Mobile User App
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mobile-user
+  labels:
+    app: mobile-user
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mobile-user
+  template:
+    metadata:
+      labels:
+        app: mobile-user
+    spec:
+      containers:
+      - name: mobile-user
+        image: xiaobangshou-mobile-user:latest
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mobile-user
+spec:
+  selector:
+    app: mobile-user
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: LoadBalancer
+
+---
+# Mobile Provider App
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mobile-provider
+  labels:
+    app: mobile-provider
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mobile-provider
+  template:
+    metadata:
+      labels:
+        app: mobile-provider
+    spec:
+      containers:
+      - name: mobile-provider
+        image: xiaobangshou-mobile-provider:latest
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mobile-provider
+spec:
+  selector:
+    app: mobile-provider
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: LoadBalancer
+
+---
+# Admin Web App
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: admin-web
+  labels:
+    app: admin-web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: admin-web
+  template:
+    metadata:
+      labels:
+        app: admin-web
+    spec:
+      containers:
+      - name: admin-web
+        image: xiaobangshou-admin-web:latest
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: admin-web
+spec:
+  selector:
+    app: admin-web
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: LoadBalancer

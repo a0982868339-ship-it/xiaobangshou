@@ -4,6 +4,9 @@
 [![Node.js](https://img.shields.io/badge/Node.js-18+-339933?style=flat-square&logo=node.js)](https://nodejs.org/)
 [![Express](https://img.shields.io/badge/Express-4.x-000000?style=flat-square&logo=express)](https://expressjs.com/)
 [![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1?style=flat-square&logo=mysql)](https://www.mysql.com/)
+[![Redis](https://img.shields.io/badge/Redis-7.0-DC382D?style=flat-square&logo=redis)](https://redis.io/)
+[![Docker](https://img.shields.io/badge/Docker-24.0-2496ED?style=flat-square&logo=docker)](https://www.docker.com/)
+[![Kubernetes](https://img.shields.io/badge/Kubernetes-1.27-326CE5?style=flat-square&logo=kubernetes)](https://kubernetes.io/)
 
 > 一个面向本地生活服务的全链路 O2O 履约系统，覆盖用户端、服务者端、管理后台与后端核心能力。
 
@@ -86,6 +89,9 @@ graph TD
 | 缓存/队列 | Redis + BullMQ | 锁、队列 |
 | 实时通信 | Socket.io | 状态同步、通知 |
 | 地图 | 高德地图 | LBS、位置计算 |
+| 容器化 | Docker + Docker Compose | 开发与交付环境 |
+| 编排 | Kubernetes (K8s) | 生产级部署方案 |
+| 网关/代理 | Nginx | 反向代理与负载均衡 |
 
 ---
 
@@ -159,7 +165,27 @@ xiaobangshou/
 
 ---
 
-## 快速启动（本地）
+## 快速启动（Docker 推荐）
+
+### 1) 环境要求
+- Docker Desktop 或 Docker Engine
+- Docker Compose
+
+### 2) 一键启动
+```bash
+# 构建并启动所有服务（后端 + 3个前端 + MySQL + Redis）
+docker-compose up --build -d
+```
+
+### 3) 访问服务
+- 用户端 H5: `http://localhost:8081`
+- 服务者端 H5: `http://localhost:8082`
+- 管理后台: `http://localhost:8080`
+- 后端 API: `http://localhost:3000`
+
+---
+
+## 快速启动（本地开发）
 
 ### 1) 环境要求
 - Node.js 18+
