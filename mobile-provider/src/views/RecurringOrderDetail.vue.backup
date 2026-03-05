@@ -1,0 +1,566 @@
+<template>
+  <div class="recurring-order-page">
+    <!-- 导航栏 -->
+    <van-nav-bar
+      title="周期订单详情"
+      left-arrow
+      @click-left="$router.back()"
+      fixed
+      placeholder
+      class="premium-nav"
+    />
+
+    <div v-if="loading" class="loading-container">
+      <van-loading size="24px" vertical>加载中...</van-loading>
+    </div>
+
+    <div v-else-if="order" class="content">
+      <!-- 订单状态头 -->
+      <div class="status-header ongoing">
+        <div class="status-icon">🎯</div>
+        <div class="status-text">服务进行中</div>
+        <div class="status-sub">已完成 {{ order.completed_sessions }}/{{ order.total_sessions }} 次</div>
+      </div>
+
+      <!-- 收入统计卡片 -->
+      <div class="income-card">
+        <div class="income-title">累计收入</div>
+        <div class="income-amount">¥{{ getTotalIncome() }}</div>
+        <div class="income-sub">单次收入 ¥{{ order.session_price }}</div>
+      </div>
+
+      <!-- 服务日程列表 -->
+      <div class="session-list-section">
+        <div class="section-title">服务日程</div>
+        
+        <div
+          v-for="(session, index) in order.sessions"
+          :key="session.id"
+          class="session-card"
+          :class="getSessionCardClass(session)"
+        >
+          <div class="session-header">
+            <div class="session-badge">第{{ index + 1 }}次</div>
+            <div class="session-meta">
+              <div class="session-date">{{ formatDate(session.session_date) }}</div>
+              <div class="session-time">{{ session.service_time }}</div>
+            </div>
+            <div class="session-status-tag" :class="session.status">
+              {{ getSessionStatusText(session.status) }}
+            </div>
+          </div>
+
+          <!-- 服务清单（仅待服务状态显示） -->
+          <div v-if="session.status === 'pending' && canShowChecklist(session)" class="checklist-section">
+            <div class="checklist-title">服务清单 <span class="badge-mandatory">必须依次完成</span></div>
+            <div class="checklist-items">
+              <div
+                v-for="item in session.checklist"
+                :key="item.id"
+                class="checklist-item"
+                @click="toggleChecklistItem(session.id, item)"
+              >
+                <van-icon
+                  :name="item.completed ? 'success' : 'circle'"
+                  :color="item.completed ? '#11998e' : '#ddd'"
+                  size="20"
+                />
+                <span :class="{ completed: item.completed }">{{ item.checklist_item }}</span>
+                <span v-if="item.completed" class="status-done">已完成</span>
+              </div>
+            </div>
+            
+            <!-- 打卡按钮 -->
+            <van-button
+              type="primary"
+              block
+              round
+              :disabled="!isChecklistComplete(session)"
+              @click="openPunchPopup(session)"
+              class="punch-btn"
+            >
+              {{ isChecklistComplete(session) ? '去打卡' : '请先完成当日打卡 (0/' + session.checklist.length + ')' }}
+            </van-button>
+          </div>
+
+          <!-- 已打卡/已结算显示 -->
+          <div v-if="session.status === 'punched'" class="waiting-confirm">
+            <van-icon name="clock-o" size="24" color="#11998e" />
+            <div class="waiting-text">已提交打卡，等待用户确认...</div>
+          </div>
+
+          <div v-if="session.status === 'settled'" class="settled-info">
+            <div class="settled-badge">
+              <van-icon name="checked" size="20" color="#fff" />
+              <span>本单已结算</span>
+            </div>
+            <div class="settled-amount">¥{{ session.price }}</div>
+            <div class="settled-time">{{ formatTime(session.settled_time) }} 结算完成</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 服务信息 -->
+      <div class="info-section">
+        <div class="section-title">服务信息</div>
+        <div class="provider-info" v-if="order.user_address">
+          <van-image round width="44" height="44" src="https://img.yzcdn.cn/vant/cat.jpeg" />
+          <div class="user-meta">
+            <div class="user-name">王大大 <van-tag plain type="primary" round>隐私虚拟号保护中</van-tag></div>
+            <div class="actions">
+              <van-icon name="chat-o" size="22" />
+              <van-icon name="phone-o" size="22" />
+            </div>
+          </div>
+        </div>
+        <div class="address-card">
+           <van-icon name="location-o" color="#999" />
+           <div class="address-content">
+             <div class="addr-label">服务地址</div>
+             <div class="addr-value">{{ order.address }}</div>
+           </div>
+           <van-button size="small" plain round class="nav-btn">导航 ></van-button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 打卡报告弹窗 -->
+    <van-popup
+      v-model:show="showPunchPopup"
+      position="bottom"
+      round
+      :style="{ height: '70%' }"
+      class="report-popup"
+    >
+      <div class="popup-header">
+        <div class="popup-title">今日服务打卡</div>
+        <div class="popup-subtitle">{{ formatDate(currentSession?.session_date) }} 服务反馈</div>
+        <van-icon name="cross" class="close-icon" @click="showPunchPopup = false" />
+      </div>
+
+      <div class="popup-body">
+        <div class="report-section">
+          <div class="section-label">现场实拍 <span class="hint">(上传今日工作照片)</span></div>
+          <van-uploader
+            v-model="fileList"
+            multiple
+            :max-count="3"
+            upload-text="拍摄照片"
+            class="report-uploader"
+          />
+        </div>
+
+        <div class="report-section">
+          <div class="section-label">服务反馈</div>
+          <van-field
+            v-model="reportNote"
+            rows="4"
+            autosize
+            type="textarea"
+            placeholder="请输入今日服务状态，让用户更放心..."
+            maxlength="200"
+            show-word-limit
+            class="report-field"
+          />
+        </div>
+
+        <div class="tag-section">
+           <div class="tags">
+             <span v-for="tag in quickTags" :key="tag" 
+                   class="quick-tag" 
+                   :class="{active: selectedTags.includes(tag)}"
+                   @click="toggleTag(tag)">
+               {{ tag }}
+             </span>
+           </div>
+        </div>
+      </div>
+
+      <div class="popup-footer">
+        <van-button
+          type="primary"
+          block
+          round
+          :loading="submitting"
+          @click="submitPunch"
+          class="submit-btn"
+        >
+          提交今日打卡
+        </van-button>
+      </div>
+    </van-popup>
+  </div>
+</template>
+
+<script setup>
+import { ref, onMounted, computed } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import request from '../api'
+import { showToast, showConfirmDialog, showLoadingToast, closeToast } from 'vant'
+
+const route = useRoute()
+const router = useRouter()
+const orderId = route.params.id
+
+const loading = ref(true)
+const order = ref(null)
+
+// 打卡弹窗相关
+const showPunchPopup = ref(false)
+const submitting = ref(false)
+const currentSession = ref(null)
+const fileList = ref([])
+const reportNote = ref('')
+const selectedTags = ref([])
+const quickTags = ['猫咪很活泼', '猫粮已加满', '水碗已清洗', '卫生已打扫', '性格非常乖']
+
+const petInfo = computed(() => {
+  try {
+    return order.value?.remark ? JSON.parse(order.value.remark) : null
+  } catch {
+    return null
+  }
+})
+
+// 加载订单详情
+const loadOrderDetail = async () => {
+  try {
+    loading.value = true
+    const res = await request.get(`/recurring/${orderId}`)
+    order.value = res.data || res
+  } catch (error) {
+    showToast(error.message || '加载失败')
+    router.back()
+  } finally {
+    loading.value = false
+  }
+}
+
+// 计算总收入
+const getTotalIncome = () => {
+  if (!order.value) return 0
+  return (order.value.completed_sessions * parseFloat(order.value.session_price)).toFixed(2)
+}
+
+// 判断是否可以显示清单
+const canShowChecklist = (session) => {
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const sessionDate = new Date(session.session_date)
+  sessionDate.setHours(0, 0, 0, 0)
+  return sessionDate >= today
+}
+
+// 切换清单项完成状态
+const toggleChecklistItem = async (sessionId, item) => {
+  try {
+    if (item.completed) return
+
+    await request.post(`/recurring/session/${sessionId}/checklist`, {
+      itemName: item.checklist_item
+    })
+
+    item.completed = true
+    showToast('已完成')
+  } catch (error) {
+    showToast(error.message || '操作失败')
+  }
+}
+
+// 检查清单是否全部完成
+const isChecklistComplete = (session) => {
+  if (!session.checklist || session.checklist.length === 0) return false
+  return session.checklist.every(item => item.completed)
+}
+
+// 打开打卡弹窗
+const openPunchPopup = (session) => {
+  currentSession.value = session
+  fileList.value = []
+  reportNote.value = ''
+  selectedTags.value = []
+  showPunchPopup.value = true
+}
+
+const toggleTag = (tag) => {
+  const index = selectedTags.value.indexOf(tag)
+  if (index > -1) {
+    selectedTags.value.splice(index, 1)
+  } else {
+    selectedTags.value.push(tag)
+  }
+}
+
+// 提交打卡
+const submitPunch = async () => {
+  if (fileList.value.length === 0) {
+    return showToast('请至少拍摄一张现场照片')
+  }
+  if (!reportNote.value && selectedTags.value.length === 0) {
+    return showToast('请填写服务反馈')
+  }
+
+  try {
+    submitting.value = true
+    showLoadingToast({ message: '提交打卡...', forbidClick: true })
+    
+    // 这里模拟图片上传，如果是真实系统需要先调用上传接口
+    const images = fileList.value.map(f => f.url || 'https://img.yzcdn.cn/vant/leaf.jpg')
+    const finalNote = selectedTags.value.join(' | ') + (reportNote.value ? '\n' + reportNote.value : '')
+
+    await request.post(`/recurring/session/${currentSession.value.id}/punch`, {
+      images: images,
+      note: finalNote,
+      tags: selectedTags.value.join(',')
+    })
+
+    closeToast()
+    showToast('打卡成功')
+    showPunchPopup.value = false
+    await loadOrderDetail()
+  } catch (error) {
+    closeToast()
+    showToast(error.message || '提交失败')
+  } finally {
+    submitting.value = false
+  }
+}
+
+// 格式化日期
+const formatDate = (date) => {
+  if (!date) return ''
+  const d = new Date(date)
+  return `${d.getMonth() + 1}月${d.getDate()}日`
+}
+
+// 格式化时间
+const formatTime = (time) => {
+  if (!time) return ''
+  return new Date(time).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
+}
+
+const getSessionCardClass = (session) => `status-${session.status}`
+
+const getSessionStatusText = (status) => {
+  const map = { pending: '待打卡', punched: '已打卡', confirmed: '待结算', settled: '已结算' }
+  return map[status] || status
+}
+
+onMounted(() => {
+  loadOrderDetail()
+})
+</script>
+
+<style scoped>
+.recurring-order-page {
+  min-height: 100vh;
+  background: #f8f9fa;
+  padding-bottom: 40px;
+}
+
+.premium-nav {
+  background: #fff !important;
+}
+
+.content {
+  padding: 16px;
+}
+
+/* 状态头 */
+.status-header {
+  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+  color: white;
+  padding: 24px;
+  border-radius: 20px;
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.status-icon { font-size: 40px; margin-bottom: 4px; }
+.status-text { font-size: 22px; font-weight: 800; }
+.status-sub { font-size: 13px; opacity: 0.9; }
+
+/* 收入卡片 */
+.income-card {
+  background: linear-gradient(135deg, #1fa2ff, #12d8fa, #a6ffcb);
+  color: #1c3d52;
+  padding: 20px;
+  border-radius: 20px;
+  margin-bottom: 20px;
+  text-align: center;
+  box-shadow: 0 8px 16px rgba(31, 162, 255, 0.2);
+}
+.income-title { font-size: 13px; font-weight: 600; opacity: 0.8; }
+.income-amount { font-size: 32px; font-weight: 900; margin: 4px 0; }
+.income-sub { font-size: 12px; font-weight: 500; }
+
+/* 列表 */
+.section-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 16px;
+  font-weight: 800;
+  margin-bottom: 12px;
+}
+
+.badge-mandatory {
+  background: #ff5252;
+  color: white;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-left: 8px;
+}
+
+.session-card {
+  background: white;
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+}
+
+.session-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.session-badge {
+  background: #f0f0f0;
+  color: #666;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.session-meta { flex: 1; }
+.session-date { font-size: 15px; font-weight: 700; color: #333; }
+.session-time { font-size: 12px; color: #999; }
+
+.session-status-tag {
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+.status-pending { background: #fff1f0; color: #f5222d; }
+.status-punched { background: #e6f7ff; color: #1890ff; }
+.status-settled { border: 1px solid #d4edda; }
+
+/* 清单 */
+.checklist-section {
+  background: #f9fbfb;
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.checklist-title { font-size: 13px; font-weight: 700; color: #11998e; margin-bottom: 10px; }
+
+.checklist-items { margin-bottom: 12px; }
+
+.checklist-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px;
+  background: white;
+  border-radius: 10px;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.status-done { font-size: 11px; color: #11998e; font-weight: 600; margin-left: auto; }
+
+.punch-btn {
+  height: 44px;
+  background: linear-gradient(135deg, #11998e, #38ef7d);
+  border: none;
+  font-weight: 700;
+}
+
+/* 已结算信息装饰 */
+.settled-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f6ffed;
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.settled-badge {
+  background: #52c41a;
+  color: white;
+  padding: 4px 10px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.settled-amount { font-size: 20px; font-weight: 900; color: #52c41a; }
+.settled-time { font-size: 11px; color: #95a5a6; }
+
+/* 服务信息 */
+.info-section { background: white; border-radius: 20px; padding: 16px; }
+
+.provider-info { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+.user-name { font-size: 16px; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+.actions { display: flex; gap: 16px; margin-top: 4px; color: #11998e; }
+
+.address-card {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 12px;
+  background: #f8f9fa;
+  border-radius: 12px;
+}
+.addr-label { font-size: 12px; color: #999; }
+.addr-value { font-size: 14px; font-weight: 700; margin-top: 2px; }
+.nav-btn { flex-shrink: 0; }
+
+/* 报告弹窗样式 */
+.report-popup { display: flex; flex-direction: column; }
+
+.popup-header {
+  padding: 20px;
+  text-align: center;
+  position: relative;
+  border-bottom: 1px solid #f0f0f0;
+}
+.popup-title { font-size: 18px; font-weight: 800; }
+.popup-subtitle { font-size: 13px; color: #999; margin-top: 4px; }
+.close-icon { position: absolute; right: 20px; top: 24px; font-size: 20px; color: #ccc; }
+
+.popup-body { flex: 1; overflow-y: auto; padding: 20px; }
+
+.report-section { margin-bottom: 24px; }
+.section-label { font-size: 15px; font-weight: 800; margin-bottom: 12px; }
+.hint { font-size: 12px; color: #999; font-weight: 400; }
+
+.report-field { background: #f8f9fa; border-radius: 12px; padding: 12px; }
+
+.tag-section .tags { display: flex; flex-wrap: wrap; gap: 8px; }
+.quick-tag {
+  background: #f0f0f0;
+  color: #666;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  transition: all 0.2s;
+}
+.quick-tag.active {
+  background: #e6f7ff;
+  color: #1890ff;
+  font-weight: 700;
+}
+
+.popup-footer { padding: 16px 20px; padding-bottom: calc(16px + env(safe-area-inset-bottom)); border-top: 1px solid #f0f0f0; }
+.submit-btn { background: #11998e; border: none; font-weight: 800; height: 48px; }
+</style>
