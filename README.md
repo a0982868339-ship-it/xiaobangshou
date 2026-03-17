@@ -84,20 +84,6 @@
 
 ---
 
-## 演示与素材
-
-> 💡 提示：以下演示视频加载可能需要较长时间，请耐心等待。
-
-### 1. 用户端 - 下单与支付
-![用户端演示](docs/demos/user_demo.gif)
-
-### 2. 服务者端 - 接单与履约
-![服务者端演示](docs/demos/provider_demo.gif)
-
-### 3. 管理后台 - 数据与调度
-![管理后台演示](docs/demos/admin_demo.gif)
-
----
 
 ## 系统架构总览
 
@@ -305,7 +291,3 @@ npm run dev
 
 ---
 
-## 版权与说明
-
-Copyright © 2024 XiaoBangShou Tech. All Rights Reserved.
-商业机密，严禁外泄。
